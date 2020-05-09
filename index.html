@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Cortelazzi ordermaker - PROTOTYPE</title>
+</head>
+<link href="https://fonts.googleapis.com/css2?family=Muli:wght@400;800&display=swap" rel="stylesheet">
+<link rel="stylesheet/less" type="text/css" href="style.less">
+<script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/3.9.0/less.min.js"></script>
+<body>
+
+<!--
+
+	DISCLAIMER:
+	Heavily inspired by Cristian Matos - VueJS 2 Simple Shopping cart
+	https://codepen.io/xristian/pen/awpVVW
+
+-->
+
+<h1>Cortelazzi ordermaker</h1>
+
+<div id="address">
+	<div class="address__title"><strong>My contact</strong></div>
+	<template v-if="address.length > 0">
+		<div class="address__saved">{{ address }}</div>
+		<button @click="removeAddress" class="btn --primary">Remove contact</button>
+	</template>
+	<template v-else>
+		<textarea v-model="addressUser" name="" class="address__textarea" placeholder="Please fill your name, address and phone number"></textarea>
+		<button @click="addAddress" type="submit" class="btn">Add contact</button>
+	</template>
+</div>
+
+
+<div id="app">
+	<div class="offer">
+		<div class="offer__item item" v-for="item in items">
+			<img class="item__image" :src="item.image" :alt="item.title">
+			<div class="item__content">
+				<div class="item__id"><strong>{{ item.id }}</strong></div>
+				<div class="item__title">{{ item.title }}</div>
+				<div class="item__price"><strong>{{ item.price | decimals }} CZK</strong></div>
+			</div>
+			<div class="item__interactive">
+				<button @click="addToCart(item)" class="btn --secondary">Add to order</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Cart -->
+	<div class="cart" id="cart">
+		<h2 class="cart__title">My order</h2>
+		<cart inline-template :items="cartItems">
+			<div class="cart__content">
+
+				<div v-for="(item, index) in items" class="item">
+					<div class="item__content">
+						<div class="item__id"><strong>{{ item.id }}</strong></div>
+						<div class="item__title">{{ item.title }}</div>
+						<div class="item__price"><strong>{{ item.price | decimals }} CZK</strong></div>
+					</div>
+					<div class="item__interactive">
+						<input v-model="item.qty" class="item__qty" type="number" min="1">
+						<button @click="removeItem(index)" class="btn --primary">Remove</button>
+					</div>
+				</div>
+
+				<div v-show="items.length === 0" class="cart__empty">
+					<p>Add your first item by clicking "Add to order" button.</p>
+				</div>
+
+				<div v-show="items.length > 0" class="cart__total">
+					<div class="cart__total-title"><strong>Total price</strong></div>
+					<div class="cart__total-value">{{ Total }} CZK</div>
+					<div class="cart__total-valuevat">~{{ TotalWithVat }} CZK (with VAT)</div>
+					<div class="cart__total-disclaimer">
+						(The total price is just approximate - VAT is 15%)
+					</div>
+				</div>
+
+			</div>
+		</cart>
+	</div>
+</div>
+
+<!-- development versions! -->
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+	// Contact (address, phone, name...)
+	const adrs = new Vue({
+		el: '#address',
+		data: {
+			address: '',
+			addressUser: ''
+		},
+		methods: {
+			addAddress() {
+				this.address = this.addressUser;
+				this.addressUser = '';
+				localStorage.setItem('address', this.address);
+
+				return this.address;
+			},
+			removeAddress() {
+				this.address = '';
+				localStorage.setItem('address', this.address);
+			}
+		},
+		mounted() {
+			if (localStorage.getItem('address')) this.address = localStorage.getItem('address');
+		},
+	});
+
+	// My order component (cart)
+	Vue.component('cart', {
+		props: ['items'],
+
+		computed: {
+			Total() {
+				let total = 0;
+				this.items.forEach(item => {
+					total += (item.price * item.qty);
+				});
+				total = total.toFixed(2);
+				return total;
+			},
+			TotalWithVat() {
+				let totalWithVat = 0;
+				this.items.forEach(item => {
+					totalWithVat += ((item.price * item.qty) * 1.15); // VAT 15%
+				});
+				totalWithVat = totalWithVat.toFixed(2);
+				return totalWithVat;
+			},
+		},
+
+		methods: {
+			// Remove item by its index
+			removeItem(index) {
+				this.items.splice(index, 1)
+			}
+		}
+	});
+
+	const ordermaker = new Vue({
+		el: '#app',
+
+		data: {
+			cartItems: [],
+			items: [],
+			inCart: false
+		},
+
+		methods: {
+			// Add Items to cart
+			addToCart(itemToAdd) {
+				let found = false;
+
+				// Add the item or increase qty
+				let itemInCart = this.cartItems.filter(item => item.id === itemToAdd.id);
+				let isItemInCart = itemInCart.length > 0;
+
+				if (isItemInCart === false) {
+					this.cartItems.push(Vue.util.extend({}, itemToAdd));
+
+				} else {
+					itemInCart[0].qty += itemToAdd.qty;
+
+				}
+
+				itemToAdd.qty = 1;
+				// this.inCart = isItemInCart;
+				// console.log(this.inCart);
+			}
+		},
+
+		mounted() {
+			if (localStorage.getItem('cartItems')) this.cartItems = JSON.parse(localStorage.getItem('cartItems'));
+
+			axios
+				.get('http://www.mocky.io/v2/5eb4338d0e00004334081a34')
+				.then(response => (this.items = response.data));
+		},
+
+		watch: {
+			cartItems: {
+				handler() {
+					localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
+				},
+				deep: true,
+			},
+		},
+	});
+
+	Vue.filter('decimals', function(value) {
+		value = value.toFixed(2);
+		return value;
+	});
+
+</script>
+
+</body>
+</html>
