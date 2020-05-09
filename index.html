@@ -182,7 +182,7 @@
 			if (localStorage.getItem('cartItems')) this.cartItems = JSON.parse(localStorage.getItem('cartItems'));
 
 			axios
-				.get('http://www.mocky.io/v2/5eb4338d0e00004334081a34')
+				.get('https://www.mocky.io/v2/5eb4338d0e00004334081a34')
 				.then(response => (this.items = response.data));
 		},
 
