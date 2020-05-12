@@ -299,6 +299,17 @@ h2 {
 	text-align: center;
 }
 
+footer {
+	margin-top: (@gap-vertical * 3);
+	text-align: center;
+	font-size: .8rem;
+	color: @gray125;
+	border-top: 2px solid @gray200;
+
+	a {
+		color: @brand-primary;
+	}
+}
 
 // ----------------------------- Print styles
 @media print {
@@ -311,7 +322,8 @@ h2 {
 	}
 
 	.offer,
-	.btn {
+	.btn,
+	footer {
 		display: none;
 	}
 

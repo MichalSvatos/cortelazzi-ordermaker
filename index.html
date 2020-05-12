@@ -7,7 +7,7 @@
 	<title>Cortelazzi ordermaker - PROTOTYPE</title>
 </head>
 <link href="https://fonts.googleapis.com/css2?family=Muli:wght@400;800&display=swap" rel="stylesheet">
-<link rel="stylesheet/less" type="text/css" href="style.less">
+<link rel="stylesheet/less" type="text/css" href="style.less?v0984039284">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/less.js/3.9.0/less.min.js"></script>
 <body>
 
@@ -84,6 +84,12 @@
 		</cart>
 	</div>
 </div>
+
+<footer>
+	<p>
+		<span id="js-current-year"></span>, Coded by <a href="https://twitter.com/MichalSvatos" target="_blank" rel="noopener">@MichalSvatos</a> with ❤️ for 🇮🇹 Italy
+	</p>
+</footer>
 
 <!-- development versions! -->
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
@@ -200,6 +206,9 @@
 		value = value.toFixed(2);
 		return value;
 	});
+
+	let y = new Date;
+	document.getElementById("js-current-year").innerHTML=y.getFullYear();
 
 </script>
 
