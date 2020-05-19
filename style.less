@@ -257,6 +257,35 @@ h2 {
 	}
 }
 
+.cart__title {
+	position: relative;
+}
+
+.print {
+	display: inline-block;
+	background-color: @brand-secondary;
+	width: (@gap-vertical * 2);
+	height: (@gap-vertical * 2);
+	text-align: center;
+	line-height: 1;
+	position: absolute;
+	right: 0;
+	top: 0;
+
+	&:hover {
+		background-color: darken(@brand-secondary, 10%);
+	}
+
+	svg {
+		width: (@gap-vertical);
+		height: (@gap-vertical);
+
+		path {
+			fill: #ffffff;
+		}
+	}
+}
+
 .cart__content {
 
 }
@@ -324,6 +353,7 @@ footer {
 
 	.offer,
 	.btn,
+	.address__textarea,
 	footer {
 		display: none;
 	}
